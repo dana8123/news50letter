@@ -1,12 +1,18 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { GptController } from './gpt/gpt.controller';
+
 import { GptModule } from './gpt/gpt.module';
+import { NewsController } from './news/news.controller';
+import { NewsModule } from './news/news.module';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration';
 
 @Module({
-  imports: [GptModule],
-  controllers: [AppController, GptController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({ load: [configuration] }),
+    GptModule,
+    NewsModule,
+    ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
+  ],
+  controllers: [NewsController],
 })
 export class AppModule {}
