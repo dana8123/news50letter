@@ -22,6 +22,7 @@ export class NewsService {
     }
   }
 
+  // TODO: 크롤링과 데이터 구조화 분리
   async crawlingFromData() {
     const newsData: INews = await this.fetchData();
     const agent = new https.Agent({ rejectUnauthorized: false });
@@ -91,7 +92,12 @@ export class NewsService {
           if (news_crawling_hash.has(trimmedDomain)) {
             const $p = $(news_crawling_hash.get(trimmedDomain));
             const data = $p.text().replace(/\n/g, '').replace(/\t/g, '');
-            return data;
+            return {
+              data,
+              title: article.title,
+              publishedAt: article.publishedAt,
+              url: article.url,
+            };
           }
 
           if (article.url.includes('youtube')) {
@@ -115,7 +121,7 @@ export class NewsService {
     );
 
     const filtered = newList.filter(
-      (data) => data !== undefined && data !== '',
+      (newsData) => newsData !== undefined && newsData.data !== '',
     );
 
     return filtered;
