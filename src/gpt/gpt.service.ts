@@ -7,7 +7,7 @@ import { Repository } from 'typeorm';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import * as https from 'https';
-import { INews } from 'src/news/news.interface';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class GptService {
@@ -16,8 +16,8 @@ export class GptService {
     @InjectRepository(GptContents)
     private gptContentsRepository: Repository<GptContents>,
   ) {}
-
-  async gptApiCall() {
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async gptApiCallAndSave() {
     const apiKey = this.configService.get<string>('apiKey.chatGpt');
     const openai = new OpenAI({
       apiKey,
@@ -62,13 +62,9 @@ export class GptService {
     return gptData;
   }
 
-  async findGptContents() {
-    return this.gptContentsRepository.find();
-  }
-
   // TODO: 크롤링과 데이터 구조화 분리
   async crawlingFromNews() {
-    const newsData: INews = await this.callNewsApi();
+    const newsData = await this.callNewsApi();
     const agent = new https.Agent({ rejectUnauthorized: false });
 
     const news_crawling_hash = new Map([
@@ -171,7 +167,11 @@ export class GptService {
     return filtered;
   }
 
-  private async callNewsApi(): Promise<INews> {
+  async findGptContents() {
+    return this.gptContentsRepository.find();
+  }
+
+  private async callNewsApi() {
     try {
       const apiKey = this.configService.get<string>('apiKey.news');
 
