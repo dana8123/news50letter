@@ -1,6 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 import { GptService } from './gpt.service';
-import { createGptDataDto } from './gpt.dto';
 import { NewsService } from 'src/news/news.service';
 
 @Controller('gpt')
@@ -10,9 +9,15 @@ export class GptController {
     private newsService: NewsService,
   ) {}
 
-  @Get('/')
+  @Post('/')
   async callApi() {
-    const newsData = await this.newsService.crawlingFromData();
-    return await this.gptService.apiCall(newsData);
+    return await this.gptService.gptApiCall();
+  }
+
+  @Get('/')
+  async findNews() {
+    const newsData = await this.gptService.findGptContents();
+
+    return newsData;
   }
 }

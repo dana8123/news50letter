@@ -36,3 +36,12 @@ lerna-debug.log*
 
 # env
 *.env
+
+# postgres docker data
+postgres-data/*
+
+# pem
+*.pem
+
+# docker-compose
+docker-compose.yml
